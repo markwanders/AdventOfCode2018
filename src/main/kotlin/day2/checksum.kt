@@ -20,17 +20,9 @@ fun solution1(input: Array<String>) {
     var two = 0
     var three = 0
     input.forEach {
-        val charArray = it.toCharArray()
-        val counts = HashMap<Char, Int>()
-        for (key in charArray) {
-            if (counts.containsKey(key)) {
-                counts[key] = (counts[key] ?: 0) + 1
-            } else {
-                counts[key] = 1
-            }
-        }
-        if (counts.containsValue(2)) two++
-        if (counts.containsValue(3)) three++
+        val counts = it.toCharArray().groupBy { c -> c }.values.map { c -> c.size }
+        if (counts.contains(2)) two++
+        if (counts.contains(3)) three++
     }
     val checksum = two * three
     println("Amount of twos: $two, amount of threes: $three, checksum: $checksum")
