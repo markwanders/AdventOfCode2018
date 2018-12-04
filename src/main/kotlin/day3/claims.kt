@@ -27,8 +27,7 @@ fun solution1(input: Array<String>) {
             }
         }
     }
-    val flattened = fabric.flatMap { it.asList() }
-    val count = flattened.count { it > 1 }
+    val count = fabric.sumBy { it.count { it > 1 } }
     println("Amount of cells with more than one claim: $count")
 }
 
@@ -46,20 +45,16 @@ fun solution2(input: Array<String>) {
             }
         }
     }
-    claims.forEach {
-        var claimed = 0
-        val required = (it.x * it.y)
-        for (x in it.startX until it.startX + it.x) {
-            for (y in it.startY until it.startY + it.y) {
-                if (fabric[x][y] == 1) {
-                    claimed++
-                }
+
+   val claim = claims.filter { claim ->
+        fabric.sliceArray(claim.startX..(claim.startX + claim.x - 1)).all {
+            it.slice(claim.startY..(claim.startY + claim.y - 1)).all {
+                it == 1
             }
         }
-        if (claimed == required) {
-            println("Cells claimed equal to cells required for id: ${it.id}")
-        }
-    }
+    }.map { it.id }
+
+    println("Cells claimed equal to cells required for id: ${claim}")
 
 }
 
