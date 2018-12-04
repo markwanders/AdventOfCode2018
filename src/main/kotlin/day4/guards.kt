@@ -5,7 +5,9 @@ import java.util.ArrayList
 
 fun main(args: Array<String>) {
     val values = readFileLineByLineUsingForEachLine("src/main/resources/day4.txt")
-    solution1(values)
+    val sleepyTimes = getSleepyTimes(values)
+    solution1(sleepyTimes)
+    solution2(sleepyTimes)
 }
 
 fun readFileLineByLineUsingForEachLine(fileName: String): Array<String> {
@@ -16,7 +18,24 @@ fun readFileLineByLineUsingForEachLine(fileName: String): Array<String> {
     return values.toTypedArray()
 }
 
-fun solution1(input: Array<String>) {
+fun solution1(sleepyTime: HashMap<Int, IntArray>) {
+    val sleepiestGuard = sleepyTime.maxBy { it.value.sum() }?.key
+    val sleepiestMinute = sleepyTime.get(sleepiestGuard)!!.indexOf(sleepyTime.get(sleepiestGuard)?.max()!!)
+    val solution = sleepiestGuard!!.times(sleepiestMinute)
+    println("The sleepiest guard is #${sleepiestGuard} at ${sleepiestMinute} after midnight, resulting in the solution: ${solution}")
+}
+
+fun solution2(sleepyTime: HashMap<Int, IntArray>) {
+    val sleepiestEntry = sleepyTime.maxWith(
+        Comparator { a, b -> a.value.max()!!.compareTo(b.value.max()!!)}
+    )
+    val sleepiestGuard = sleepiestEntry!!.key
+    val sleepiestMinute = sleepiestEntry.value.indexOf(sleepiestEntry.value.max()!!)
+    val solution = sleepiestGuard.times(sleepiestMinute!!)
+    println("The sleepiest minute is ${sleepiestMinute} after midnight for guard #${sleepiestGuard}, resulting in the solution: ${solution}")
+}
+
+fun getSleepyTimes(input: Array<String>) : HashMap<Int, IntArray> {
     val idRegex = "(?<=#)([0-9]*?)(?= begins shift)".toRegex()
     val sleepRegex = "(?<=:)([0-9]*?)(?=] falls asleep)".toRegex()
     val wakeRegex = "(?<=:)([0-9]*?)(?=] wakes up)".toRegex()
@@ -42,8 +61,5 @@ fun solution1(input: Array<String>) {
         }
     }
 
-    val sleepiestGuard = sleepyTime.maxBy { it.value.sum() }?.key
-    val sleepiestMinute = sleepyTime.get(sleepiestGuard)!!.indexOf(sleepyTime.get(sleepiestGuard)?.max()!!)
-    val solution = sleepiestGuard!!.times(sleepiestMinute)
-    println("The sleepiest guard is #${sleepiestGuard} at ${sleepiestMinute} after midnight, resulting in the solution: ${solution}")
+    return sleepyTime
 }
