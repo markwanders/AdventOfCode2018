@@ -8,8 +8,8 @@ import kotlin.math.absoluteValue
 
 fun main(args: Array<String>) {
     val coords = readFile("src/main/resources/day6.txt")
-//    coords.forEach { println("x: ${it.first}, y: ${it.second}") }
     solution1(coords)
+    solution2(coords)
 }
 
 fun readFile(fileName: String): Array<Pair<Int, Int>> {
@@ -49,6 +49,20 @@ fun solution1(coords: Array<Pair<Int, Int>>) {
     }
     val biggest = regions.maxBy { it.value }!!.value
     println("Largest area region is $biggest")
+}
+
+fun solution2(coords: Array<Pair<Int, Int>>) {
+    val grid = Array(coords.maxBy { it.first }!!.first) { IntArray(coords.maxBy { it.second }!!.second) }
+    val region = ArrayList<Pair<Int, Int>>()
+    grid.forEachIndexed { x, ints ->
+        ints.forEachIndexed { y, _ ->
+            if(coords.map { pair -> manhattan(pair, Pair(x, y)) }.sum() < 10000) {
+                region.add(Pair(x, y))
+            }
+        }
+    }
+    println("Area of region within 10000 units of all coordinates has size ${region.size}")
+
 }
 
 fun manhattan(a: Pair<Int, Int>, b: Pair<Int, Int>): Int {
