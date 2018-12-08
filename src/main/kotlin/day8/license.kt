@@ -3,7 +3,7 @@ package day8
 import java.io.File
 
 fun main(args: Array<String>) {
-    val input = readFile("src/main/resources/test.txt")
+    val input = readFile("src/main/resources/day8.txt")
     solution1(input)
 }
 
@@ -12,26 +12,25 @@ fun readFile(fileName: String): IntArray {
 }
 
 fun solution1(input: IntArray) {
-    println(metadata(input))
+    var sum = 0
+    val iterator = input.iterator()
+    while (iterator.hasNext()) {
+        sum += metadata(iterator)
+    }
+    println(sum)
 }
 
-fun metadata(input: IntArray):Int {
+fun metadata(input: IntIterator): Int {
     var metadata = 0
 
-    val children = input[0]
-    val metadataEntries = input[1]
-    val newInput: IntArray
-    if (children == 0) {
-        metadata += input.slice(2 until 2 + metadataEntries).sum()
-        if (2 + metadataEntries < input.size) {
-            newInput = input.drop(2 + metadataEntries).toIntArray()
-            metadata += metadata(newInput)
-        }
-    } else {
-            metadata += input.takeLast(metadataEntries).sum()
-            newInput = input.slice(2 until input.size - metadataEntries).toIntArray()
-            metadata += metadata(newInput)
+    val children = input.nextInt()
+    val metadataEntries = input.nextInt()
 
+    for (c in 0 until children) {
+        metadata += metadata(input)
+    }
+    for (m in 0 until metadataEntries) {
+        metadata += input.nextInt()
     }
 
     return metadata
