@@ -3,13 +3,12 @@ package day9
 import java.io.File
 
 fun main(args: Array<String>) {
-    val input = readFile("src/main/resources/test.txt")
-    println("${input[0]},${input[1]}")
+    val input = readFile("src/main/resources/day9.txt")
     solution1(input[0],input[1])
 }
 
 fun readFile(fileName: String): List<Int> {
-    var raw = File(fileName).readText()
+    val raw = File(fileName).readText()
     return "\\d+".toRegex().findAll(raw).map { it.value.toInt() }.toList()
 }
 
@@ -29,7 +28,6 @@ fun solution1(numberOfPlayers: Int, numberOfMarbles: Int) {
             if(dropIndex < 0) {
                 dropIndex += playedMarbles.size
             }
-            println("Added score of ${x} and ${playedMarbles[dropIndex]} to player $currentPlayer")
             players[currentPlayer] += x
             players[currentPlayer] += playedMarbles[dropIndex]
             playedMarbles.removeAt(dropIndex)
@@ -38,8 +36,6 @@ fun solution1(numberOfPlayers: Int, numberOfMarbles: Int) {
             playedMarbles.add(index, x)
             currentMarble = index
         }
-
-        println("[$currentPlayer] $playedMarbles ($x)")
 
         currentPlayer = if(currentPlayer == players.size - 1) {
             0
