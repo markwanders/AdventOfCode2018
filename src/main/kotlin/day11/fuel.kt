@@ -2,7 +2,7 @@ package day11
 
 import java.io.File
 
-val input = readFile("src/main/resources/test.txt")
+val input = readFile("src/main/resources/day11.txt")
 
 fun main(args: Array<String>) {
 //    solution1()
@@ -66,7 +66,7 @@ fun solution2() {
 
     }
     val solution = maximaPerCoordinate.maxBy { it.value.second }!!
-    println("${solution.key} ${solution.value.first} ${solution.value.second}")
+    println("Maximum fuel at x=${solution.key.first + 1}, y=${solution.key.second + 1}, ${solution.value.first}x${solution.value.first}")
 }
 
 fun power(x: Int, y: Int): Int {
