@@ -3,7 +3,7 @@ package day13
 import java.io.File
 
 fun main(args: Array<String>) {
-    val input = readFile("src/main/resources/test.txt")
+    val input = readFile("src/main/resources/day13.txt")
     solution1(input)
 }
 
@@ -20,7 +20,7 @@ fun readFile(fileName: String): ArrayList<CharArray> {
 }
 
 fun solution1(input: ArrayList<CharArray>) {
-    val cars = mutableListOf<Pair<Pair<Char, Int>, Pair<Int, Int>>>()
+    var cars = mutableListOf<Pair<Pair<Char, Int>, Pair<Int, Int>>>()
     input.forEachIndexed { y, row ->
         row.forEachIndexed { x, char ->
             when (char) {
@@ -45,6 +45,7 @@ fun solution1(input: ArrayList<CharArray>) {
     }
     var crashed = false
     do {
+        cars = cars.sortedWith(compareBy({ it.second.second }, { it.second.first })).toMutableList()
         cars.forEachIndexed { carNr, car ->
             val x = car.second.first
             val y = car.second.second
@@ -66,17 +67,19 @@ fun solution1(input: ArrayList<CharArray>) {
                     cars[carNr] = Pair(nextDirection, Pair(x, y + 1))
                 }
             }
+
+            val crashes = cars
+                .groupingBy { carInCars -> carInCars.second }
+                .eachCount()
+                .filter { it.value > 1 }
+            if (crashes.isNotEmpty()) {
+                println(crashes.keys)
+                crashed = true
+                return
+            }
         }
 
-        val crashes = cars.map { car -> car.second }
-            .groupingBy { it }
-            .eachCount()
-            .filter { it.value > 1 }
-            .filter { entry -> entry.value > 1 }
-        if (crashes.isNotEmpty()) {
-            println(crashes)
-            crashed = true
-        }
+
     } while (!crashed)
 
 }
