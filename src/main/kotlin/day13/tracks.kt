@@ -4,7 +4,8 @@ import java.io.File
 
 fun main(args: Array<String>) {
     val input = readFile("src/main/resources/day13.txt")
-    solution1(input)
+//    solution1(input)
+    solution2(input)
 }
 
 fun readFile(fileName: String): ArrayList<CharArray> {
@@ -76,6 +77,77 @@ fun solution1(input: ArrayList<CharArray>) {
                 println(crashes.keys)
                 crashed = true
                 return
+            }
+        }
+
+
+    } while (!crashed)
+}
+
+fun solution2(input: ArrayList<CharArray>) {
+    var cars = mutableListOf<Pair<Pair<Char, Int>, Pair<Int, Int>>>()
+    input.forEachIndexed { y, row ->
+        row.forEachIndexed { x, char ->
+            when (char) {
+                '>' -> {
+                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    input[y][x] = '-'
+                }
+                '<' -> {
+                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    input[y][x] = '-'
+                }
+                'v' -> {
+                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    input[y][x] = '|'
+                }
+                '^' -> {
+                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    input[y][x] = '|'
+                }
+            }
+        }
+    }
+    var crashed = false
+    do {
+        cars = cars.sortedWith(compareBy({ it.second.second }, { it.second.first })).toMutableList()
+        cars.forEachIndexed { carNr, car ->
+            val x = car.second.first
+            val y = car.second.second
+            val currentDirection = car.first.first
+            val numberOfTurns = car.first.second
+            val nextDirection = nextDirection(currentDirection, numberOfTurns, input[y][x])
+
+            when (nextDirection.first) {
+                '>' -> {
+                    cars[carNr] = Pair(nextDirection, Pair(x + 1, y))
+                }
+                '<' -> {
+                    cars[carNr] = Pair(nextDirection, Pair(x - 1, y))
+                }
+                '^' -> {
+                    cars[carNr] = Pair(nextDirection, Pair(x, y - 1))
+                }
+                'v' -> {
+                    cars[carNr] = Pair(nextDirection, Pair(x, y + 1))
+                }
+            }
+
+            val crashes = cars
+                .groupingBy { carInCars -> carInCars.second }
+                .eachCount()
+                .filter { it.value > 1 }
+            if (crashes.isNotEmpty()) {
+                cars.mapIndexed{ index, it ->
+                    if(crashes.containsKey(it.second)) {
+                        cars[index] = Pair(Pair('.', 0), Pair(0,0))
+                    }
+                }
+            }
+            val remainingCars = cars.filter { it -> it.second != Pair(0, 0) }
+            if (remainingCars.size == 1) {
+                crashed = true
+                println(remainingCars)
             }
         }
 
