@@ -7,6 +7,7 @@ var before = ArrayList<List<Int>>()
 var after = ArrayList<List<Int>>()
 var instructions = ArrayList<List<Int>>()
 val operations = HashMap<String, (List<Int>, List<Int>) -> List<Int>>()
+val program = ArrayList<List<Int>>()
 
 fun main(args: Array<String>) {
     readFile("src/main/resources/day16.txt")
@@ -16,19 +17,27 @@ fun main(args: Array<String>) {
 
 fun readFile(fileName: String) {
     var previousIsBefore = false
+    var startProgram = 0
     File(fileName).forEachLine {
         when {
+            startProgram == 3 -> {
+                program.add(it.split(" ").map { it.toInt() })
+            }
+            it == "" -> startProgram++
             it.startsWith("Before:") -> {
                 before.add(it.substringAfter("Before: ").removeSurrounding("[", "]").split(", ").map { it.toInt() })
                 previousIsBefore = true
+                startProgram = 0
             }
             it.startsWith("After:") -> {
                 after.add(it.substringAfter("After: ").removeSurrounding(" [", "]").split(", ").map { it.toInt() })
                 previousIsBefore = false
+                startProgram = 0
             }
             previousIsBefore -> {
                 instructions.add(it.split(" ").map { it.toInt() })
                 previousIsBefore = false
+                startProgram = 0
             }
         }
     }
@@ -149,14 +158,13 @@ fun solution1() {
 
 fun solution2() {
     val solutions = HashMap<Int, List<String>>()
-    val uniqueSolutions = HashMap<String, Int>()
+    val uniqueSolutions = HashMap<Int, String>()
     do {
-        println(instructions.size)
         (0 until instructions.size).forEach { i ->
             val solutionsForOp = mutableListOf<String>()
             operations.forEach { op ->
                 val output = op.value.invoke(before[i], instructions[i])
-                if (output == after[i] && !uniqueSolutions.containsKey(op.key)) {
+                if (output == after[i] && !uniqueSolutions.containsValue(op.key)) {
                     solutionsForOp.add(op.key)
                 }
             }
@@ -166,12 +174,9 @@ fun solution2() {
                 else -> solutions[opcode]!!.filter { solutionsForOp.contains(it) }
             }
         }
-        solutions.forEach {
-            println("${it.key} : ${it.value}")
-        }
         solutions.forEach { solution ->
             if (solution.value.size == 1) {
-                uniqueSolutions[solution.value[0]] = solution.key
+                uniqueSolutions[solution.key] = solution.value[0]
                 val indicesToBeRemoved = mutableListOf<Int>()
                 instructions.forEachIndexed {index, list ->
                     if (list[0] == solution.key) {
@@ -187,4 +192,5 @@ fun solution2() {
             }
         }
     } while(solutions.filter { solution -> solution.value.size > 1 }.isNotEmpty())
+    println(uniqueSolutions)
 }
