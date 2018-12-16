@@ -3,14 +3,15 @@ package day16
 import java.io.File
 import java.util.ArrayList
 
-val before = ArrayList<List<Int>>()
-val after = ArrayList<List<Int>>()
-val instructions = ArrayList<List<Int>>()
+var before = ArrayList<List<Int>>()
+var after = ArrayList<List<Int>>()
+var instructions = ArrayList<List<Int>>()
 val operations = HashMap<String, (List<Int>, List<Int>) -> List<Int>>()
 
 fun main(args: Array<String>) {
     readFile("src/main/resources/day16.txt")
     solution1()
+    solution2()
 }
 
 fun readFile(fileName: String) {
@@ -138,11 +139,52 @@ fun solution1() {
         operations.forEach { op ->
             val output = op.value.invoke(before[i], instructions[i])
             if(output == after[i]) {
-                print(op.key)
                 count++
             }
         }
         if (count >= 3) countMoreThanThree++
     }
     println(countMoreThanThree)
+}
+
+fun solution2() {
+    val solutions = HashMap<Int, List<String>>()
+    val uniqueSolutions = HashMap<String, Int>()
+    do {
+        println(instructions.size)
+        (0 until instructions.size).forEach { i ->
+            val solutionsForOp = mutableListOf<String>()
+            operations.forEach { op ->
+                val output = op.value.invoke(before[i], instructions[i])
+                if (output == after[i] && !uniqueSolutions.containsKey(op.key)) {
+                    solutionsForOp.add(op.key)
+                }
+            }
+            val opcode = instructions[i][0]
+            solutions[opcode] = when {
+                solutions[opcode] == null -> solutionsForOp
+                else -> solutions[opcode]!!.filter { solutionsForOp.contains(it) }
+            }
+        }
+        solutions.forEach {
+            println("${it.key} : ${it.value}")
+        }
+        solutions.forEach { solution ->
+            if (solution.value.size == 1) {
+                uniqueSolutions[solution.value[0]] = solution.key
+                val indicesToBeRemoved = mutableListOf<Int>()
+                instructions.forEachIndexed {index, list ->
+                    if (list[0] == solution.key) {
+                        indicesToBeRemoved.add(index)
+                    }
+                }
+                indicesToBeRemoved.sortDescending()
+                indicesToBeRemoved.forEach {removeIndex ->
+                    instructions.removeAt(removeIndex)
+                    before.removeAt(removeIndex)
+                    after.removeAt(removeIndex)
+                }
+            }
+        }
+    } while(solutions.filter { solution -> solution.value.size > 1 }.isNotEmpty())
 }
