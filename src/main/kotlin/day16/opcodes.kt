@@ -192,5 +192,9 @@ fun solution2() {
             }
         }
     } while(solutions.filter { solution -> solution.value.size > 1 }.isNotEmpty())
-    println(uniqueSolutions)
+    var output = listOf(0, 0, 0, 0)
+    program.forEach {line ->
+        output = operations[uniqueSolutions[line[0]]]!!.invoke(output, line)
+    }
+    println(output[0])
 }
