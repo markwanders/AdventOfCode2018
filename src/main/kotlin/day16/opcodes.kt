@@ -132,11 +132,9 @@ fun readFile(fileName: String) {
 }
 
 fun solution1() {
-    (0..1).forEach { i ->
+    var countMoreThanThree = 0
+    (0 until instructions.size).forEach { i ->
         var count = 0
-        println(before[i])
-        println(instructions[i])
-        println(after[i])
         operations.forEach { op ->
             val output = op.value.invoke(before[i], instructions[i])
             if(output == after[i]) {
@@ -144,7 +142,7 @@ fun solution1() {
                 count++
             }
         }
-        println(count)
-        println()
+        if (count >= 3) countMoreThanThree++
     }
+    println(countMoreThanThree)
 }
