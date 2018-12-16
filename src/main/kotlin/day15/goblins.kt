@@ -34,20 +34,9 @@ fun solution1() {
         unitList.forEach {unit ->
             println("Finding targets for ${unit.type} at ${unit.x}, ${unit.y}")
             val targets = unitList.filter { enemy -> enemy.type != unit.type } //determine targets for each unit
-            targets.forEach {target -> //get adjacent, unoccupied tiles
-                val adjacentTiles = mutableListOf<Pair<Int, Int>>()
-                (target.y-1..target.y+1).forEach { y ->
-                        if(battlefield[y][target.x] == '.' && y != target.y) {
-                            adjacentTiles.add(Pair(target.x, y))
-                    }
-                }
-                (target.x-1..target.x+1).forEach { x ->
-                    if(battlefield[target.y][x] == '.' && x != target.x) {
-                        adjacentTiles.add(Pair(x, target.y))
-                    }
-                }
-                println("Found target ${target.type} at ${target.x}, ${target.y} with free adjacent tiles: $adjacentTiles")
-            }
+            val tilesAdjacentToAnyTarget = findTilesAdjacentToTargets(targets).toMutableList()
+            tilesAdjacentToAnyTarget.sortBy { tile-> tile.second }
+            println("All possible destinations: $tilesAdjacentToAnyTarget")
         }
     }
 }
@@ -57,8 +46,7 @@ data class Unit(var x: Int, var y: Int, var type: Char) {
     val ap = 3
 }
 
-fun print() {
-    //Print battlefield
+fun print() { //Print battlefield
     battlefield.forEachIndexed { y,  line ->
         line.forEachIndexed { x, char ->
             if(unitList.any { unit -> unit.x == x && unit.y == y }) {
@@ -69,4 +57,24 @@ fun print() {
         }
         println()
     }
+}
+
+fun findTilesAdjacentToTargets(targets: List<Unit>) : List<Pair<Int, Int>> {//get adjacent, unoccupied tiles for each target
+    val tilesAdjacentToAnyTarget = mutableListOf<Pair<Int, Int>>()
+    targets.forEach {target ->
+        val adjacentTilesToTarget = mutableListOf<Pair<Int, Int>>()
+        (target.y-1..target.y+1).forEach { y ->
+            if(battlefield[y][target.x] == '.' && y != target.y) {
+                adjacentTilesToTarget.add(Pair(target.x, y))
+            }
+        }
+        (target.x-1..target.x+1).forEach { x ->
+            if(battlefield[target.y][x] == '.' && x != target.x) {
+                adjacentTilesToTarget.add(Pair(x, target.y))
+            }
+        }
+        println("Found target ${target.type} at ${target.x}, ${target.y} with free adjacent tiles: $adjacentTilesToTarget")
+        tilesAdjacentToAnyTarget.addAll(adjacentTilesToTarget)
+    }
+    return tilesAdjacentToAnyTarget
 }
