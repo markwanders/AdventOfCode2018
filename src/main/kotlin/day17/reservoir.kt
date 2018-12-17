@@ -2,9 +2,11 @@ package day17
 
 import java.io.File
 
+val grid = readFile("src/main/resources/day17.txt")
+var startFromY: Int = 0
+
 fun main(args: Array<String>) {
-    val input = readFile("src/main/resources/test.txt")
-    solution1(input)
+    solution1()
 }
 
 fun readFile(fileName: String): Array<Array<Char>> {
@@ -34,6 +36,7 @@ fun readFile(fileName: String): Array<Array<Char>> {
         }
     }
     val grid = Array(sand.maxBy { it.second }!!.second + 1) { Array(2 * sand.maxBy { it.first }!!.first + 1) { '.'} }
+    startFromY = sand.minBy { it.second }!!.second
     sand.forEach {
         grid[it.second][it.first] = '#'
     }
@@ -41,17 +44,10 @@ fun readFile(fileName: String): Array<Array<Char>> {
     return grid
 }
 
-fun solution1(grid: Array<Array<Char>>) {
-    grid.forEach {
-        it.forEachIndexed { x, it ->
-            if (x in 491..509) print(it)
-        }
-        println()
-    }
+fun solution1() {
     var water = mutableListOf<Pair<Int, Int>>()
     water.add(500 to 0)
-    repeat(10) {
-
+    repeat(1000) {
         val addedWater = mutableListOf<Pair<Int, Int>>()
         water.forEach {source ->
             var y = source.second
@@ -90,13 +86,18 @@ fun solution1(grid: Array<Array<Char>>) {
         }
         water.addAll(addedWater)
         water = water.distinct().toMutableList()
-        grid.forEach {line ->
-            line.forEachIndexed { x, char ->
-                if (x in 491..509) print(char)
-            }
-            println()
+
+    }
+    println(grid.flatten().count { it == '~' }.plus(grid.flatten().count { it == '|' }).minus(startFromY - 1))
+    println(grid.flatten().count { it == '~' })
+}
+
+fun print() {
+    grid.forEach {line ->
+        line.forEachIndexed { x, char ->
+            if (x in 300..700) print(char)
         }
         println()
     }
-    println(grid.flatten().count { it == '~' }.plus(grid.flatten().count { it == '|' }))
+    println()
 }
