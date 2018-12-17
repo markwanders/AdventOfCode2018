@@ -90,26 +90,26 @@ fun solution2(input: ArrayList<CharArray>) {
         row.forEachIndexed { x, char ->
             when (char) {
                 '>' -> {
-                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    cars.add((char to 0) to (x to y))
                     input[y][x] = '-'
                 }
                 '<' -> {
-                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    cars.add((char to 0) to (x to y))
                     input[y][x] = '-'
                 }
                 'v' -> {
-                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    cars.add((char to 0) to (x to y))
                     input[y][x] = '|'
                 }
                 '^' -> {
-                    cars.add(Pair(Pair(char, 0), Pair(x, y)))
+                    cars.add((char to 0) to (x to y))
                     input[y][x] = '|'
                 }
             }
         }
     }
     var crashed = false
-    do {
+    while (!crashed) {
         cars = cars.sortedWith(compareBy({ it.second.second }, { it.second.first })).toMutableList()
         cars.forEachIndexed { carNr, car ->
             val x = car.second.first
@@ -120,16 +120,16 @@ fun solution2(input: ArrayList<CharArray>) {
 
             when (nextDirection.first) {
                 '>' -> {
-                    cars[carNr] = Pair(nextDirection, Pair(x + 1, y))
+                    cars[carNr] = nextDirection to (x + 1 to y)
                 }
                 '<' -> {
-                    cars[carNr] = Pair(nextDirection, Pair(x - 1, y))
+                    cars[carNr] = nextDirection to (x - 1 to y)
                 }
                 '^' -> {
-                    cars[carNr] = Pair(nextDirection, Pair(x, y - 1))
+                    cars[carNr] = nextDirection to (x to y - 1)
                 }
                 'v' -> {
-                    cars[carNr] = Pair(nextDirection, Pair(x, y + 1))
+                    cars[carNr] = nextDirection to (x to y + 1)
                 }
             }
 
@@ -140,66 +140,65 @@ fun solution2(input: ArrayList<CharArray>) {
             if (crashes.isNotEmpty()) {
                 cars.mapIndexed{ index, it ->
                     if(crashes.containsKey(it.second)) {
-                        cars[index] = Pair(Pair('.', 0), Pair(0,0))
+                        cars[index] = '.' to 0 to (0 to 0)
                     }
                 }
             }
-            val remainingCars = cars.filter { it -> it.second != Pair(0, 0) }
+            val remainingCars = cars.filter { it -> it.second != 0 to 0 }
             if (remainingCars.size == 1) {
                 crashed = true
                 println(remainingCars)
             }
         }
 
-
-    } while (!crashed)
+    }
 
 }
 
 fun nextDirection(currentDirection: Char, turns: Int, track: Char): Pair<Char, Int> {
     when (track) {
         '\\' -> when (currentDirection) {
-            '^' -> return Pair('<', turns)
-            '>' -> return Pair('v', turns)
-            'v' -> return Pair('>', turns)
-            '<' -> return Pair('^', turns)
+            '^' -> return '<' to turns
+            '>' -> return 'v' to turns
+            'v' -> return '>' to turns
+            '<' -> return '^' to turns
         }
         '/' -> when (currentDirection) {
-            '^' -> return Pair('>', turns)
-            '>' -> return Pair('^', turns)
-            'v' -> return Pair('<', turns)
-            '<' -> return Pair('v', turns)
+            '^' -> return '>' to turns
+            '>' -> return '^' to turns
+            'v' -> return '<' to turns
+            '<' -> return 'v' to turns
         }
         '+' -> when (currentDirection) {
             '^' -> {
                 when (turns) {
-                    0 -> return Pair('<', 1)
-                    1 -> return Pair(currentDirection, 2)
-                    2 -> return Pair('>', 0)
+                    0 -> return '<' to 1
+                    1 -> return currentDirection to 2
+                    2 -> return '>' to 0
                 }
             }
             '>' -> {
                 when (turns) {
-                    0 -> return Pair('^', 1)
-                    1 -> return Pair(currentDirection, 2)
-                    2 -> return Pair('v', 0)
+                    0 -> return '^' to 1
+                    1 -> return currentDirection to 2
+                    2 -> return 'v' to 0
                 }
             }
             'v' -> {
                 when (turns) {
-                    0 -> return Pair('>', 1)
-                    1 -> return Pair(currentDirection, 2)
-                    2 -> return Pair('<', 0)
+                    0 -> return '>' to 1
+                    1 -> return currentDirection to 2
+                    2 -> return '<' to 0
                 }
             }
             '<' -> {
                 when (turns) {
-                    0 -> return Pair('v', 1)
-                    1 -> return Pair(currentDirection, 2)
-                    2 -> return Pair('^', 0)
+                    0 -> return 'v' to 1
+                    1 -> return currentDirection to 2
+                    2 -> return '^' to 0
                 }
             }
         }
     }
-    return Pair(currentDirection, turns)
+    return currentDirection to turns
 }
