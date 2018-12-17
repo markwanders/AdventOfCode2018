@@ -18,7 +18,12 @@ fun solution1(polymer: String){
 
 fun solution2(polymer: String){
     val polymerArray = polymer.toCharArray()
-    val minEntry = polymerArray.map { c -> c.toLowerCase() }.distinct().sorted().map { it -> it to react(String(polymerArray.filterNot { c -> c.toLowerCase() == it}.toCharArray()))}.minBy { it.second.length }
+    val minEntry = polymerArray
+        .map { c -> c.toLowerCase() }
+        .distinct()
+        .sorted()
+        .map { it -> it to react(String(polymerArray.filterNot { c -> c.toLowerCase() == it}.toCharArray()))}
+        .minBy { it.second.length }
     println("Removing letter ${minEntry!!.first} results in the shortest reacted polymer with length ${minEntry.second.length}.")
 }
 
@@ -34,7 +39,7 @@ fun react(polymer: String) : String {
                 matched = true
             }
         }
-        polymerArray = String(polymerArray).replace("\\s".toRegex(), "").toCharArray()
+        polymerArray = polymerArray.filterNot { c -> c == ' ' }.toCharArray()
     } while (matched)
 
     return String(polymerArray)
