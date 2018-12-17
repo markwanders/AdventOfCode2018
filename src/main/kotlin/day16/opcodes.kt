@@ -146,7 +146,7 @@ fun solution1() {
     (0 until instructions.size).forEach { i ->
         var count = 0
         operations.forEach { op ->
-            val output = op.value.invoke(before[i], instructions[i])
+            val output = op.value(before[i], instructions[i])
             if(output == after[i]) {
                 count++
             }
@@ -163,7 +163,7 @@ fun solution2() {
         (0 until instructions.size).forEach { i ->
             val solutionsForOp = mutableListOf<String>()
             operations.forEach { op ->
-                val output = op.value.invoke(before[i], instructions[i])
+                val output = op.value(before[i], instructions[i])
                 if (output == after[i] && !uniqueSolutions.containsValue(op.key)) {
                     solutionsForOp.add(op.key)
                 }
@@ -194,7 +194,7 @@ fun solution2() {
     } while(solutions.filter { solution -> solution.value.size > 1 }.isNotEmpty())
     var output = listOf(0, 0, 0, 0)
     program.forEach {line ->
-        output = operations[uniqueSolutions[line[0]]]!!.invoke(output, line)
+        output = operations[uniqueSolutions[line[0]]]!!(output, line)
     }
     println(output[0])
 }
