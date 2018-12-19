@@ -11,12 +11,13 @@ val program = ArrayList<Pair<String, List<Int>>>()
 
 fun main(args: Array<String>) {
     readFile("src/main/resources/day19.txt")
-    solution1()
+//    solution1()
+    solution2()
 }
 
 fun readFile(fileName: String) {
     File(fileName).forEachLine {
-        if(ip < 0) {
+        if (ip < 0) {
             ip = it.substringAfter("#ip ").toInt()
         } else {
             program.add(it.substring(0, 4) to it.substring(5, it.length).split(" ").map { it.toInt() })
@@ -123,10 +124,31 @@ fun readFile(fileName: String) {
 }
 
 fun solution1() {
-    var input = mutableListOf(0,0,0,0,0,0)
-    while(input[ip] < program.size) {
+    var input = mutableListOf(0, 0, 0, 0, 0, 0)
+    while (input[ip] < program.size) {
         input = operations[program[input[ip]].first]!!(input, program[input[ip]].second).toMutableList()
-        println(input)
+        input[ip]++
+    }
+    println(input)
+}
+
+fun solution2() {
+    var input = mutableListOf(1, 0, 0, 0, 0, 0)
+    val list = arrayListOf<String>()
+    var repeat = true
+    while (repeat) {
+
+        input = operations[program[input[ip]].first]!!(input, program[input[ip]].second).toMutableList()
+
+        list.add(program[input[ip]].first)
+        val size = list.size
+        if (size >= 16) {
+            if (list.subList(size - 16, size - 9) == list.subList(size - 8, size - 1)) {
+                println(list.subList(size - 16, size - 8))
+                repeat = false
+            }
+        }
+
         input[ip]++
     }
 }
