@@ -134,13 +134,13 @@ fun solution1() {
 
 fun solution2() {
     var input = mutableListOf(1, 0, 0, 0, 0, 0)
-    val list = arrayListOf<String>()
+    val list = arrayListOf<Pair<String, List<Int>>>()
     var repeat = true
     while (repeat) {
 
         input = operations[program[input[ip]].first]!!(input, program[input[ip]].second).toMutableList()
 
-        list.add(program[input[ip]].first)
+        list.add(program[input[ip]].first to program[input[ip]].second)
         val size = list.size
         if (size >= 16) {
             if (list.subList(size - 16, size - 9) == list.subList(size - 8, size - 1)) {
