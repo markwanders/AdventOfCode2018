@@ -11,7 +11,7 @@ val program = ArrayList<Pair<String, List<Int>>>()
 
 fun main(args: Array<String>) {
     readFile("src/main/resources/day19.txt")
-//    solution1()
+    solution1()
     solution2()
 }
 
@@ -136,6 +136,7 @@ fun solution2() {
     var input = mutableListOf(1, 0, 0, 0, 0, 0)
     val list = arrayListOf<Pair<String, List<Int>>>()
     var repeat = true
+    var factor = 0
     while (repeat) {
 
         input = operations[program[input[ip]].first]!!(input, program[input[ip]].second).toMutableList()
@@ -144,11 +145,25 @@ fun solution2() {
         val size = list.size
         if (size >= 16) {
             if (list.subList(size - 16, size - 9) == list.subList(size - 8, size - 1)) {
-                println(list.subList(size - 16, size - 8))
+                println("The loop consists of operations ${list.subList(size - 16, size - 8)}")
+                println("This comes down to finding the sum of factors of ${input[4]}")
+                factor = input[4]
                 repeat = false
             }
         }
-
         input[ip]++
     }
+
+    val max = Math.sqrt(factor.toDouble()).toInt()
+    var sum = 1
+    for (i in 2..max) {
+        if (factor % i == 0) {
+            sum += i
+            val result = factor / i
+            if (result != i)
+                sum += result
+        }
+    }
+
+    println("Sum of factors of $factor is ${sum + factor}")
 }
