@@ -3,7 +3,7 @@ package day15
 import java.io.File
 import java.util.*
 
-val battlefield = readFile("src/main/resources/test.txt")
+val battlefield = readFile("src/main/resources/day15.txt")
 val unitList = mutableListOf<Unit>()
 
 fun main(args: Array<String>) {
