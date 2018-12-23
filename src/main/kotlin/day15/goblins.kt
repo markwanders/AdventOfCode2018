@@ -31,8 +31,6 @@ fun solution1() {
     var combatOver = false
     var rounds = 0
     while(!combatOver) {
-        println("After $rounds rounds")
-        print()
 
         unitList.forEach { unit -> // Reset distance
             unit.position.distance = Int.MAX_VALUE
@@ -41,7 +39,6 @@ fun solution1() {
 
         unitList.sortedWith(compareBy({ unit -> unit.position.y }, {  unit -> unit.position.x })).forEach { unit ->
             if (unit.hp > 0) {
-//            println("Finding targets for ${unit.type} at ${unit.position.x}, ${unit.position.y}")
                 val targets = unitList
                     .filter { enemy -> enemy.type != unit.type && enemy.hp > 0 } //determine targets for each unit
                 var neighbouringTargets =
@@ -54,19 +51,16 @@ fun solution1() {
                             { position -> position.y },
                             { position -> position.x })
                     )
-//                println("All possible destinations: $tilesAdjacentToAnyTarget")
                     if (tilesAdjacentToAnyTarget.isNotEmpty()) {
                         val routes = tilesAdjacentToAnyTarget.map { tile -> tile to dijkstra(unit.position, tile) }.filter { it.second != null }
                         if(routes.isNotEmpty()) {
                             val shortestDistance = routes.minBy { route -> route.second!!.size }!!.second!!.size
-//                            println("Shortest distance to closest tile next to target: $shortestDistance")
                             val selected = routes
                                 .filter { route -> route.second!!.size == shortestDistance }
                                 .map { route -> route.first }
                                 .sortedWith(compareBy({ position -> position.y }, { position -> position.x }))
                                 .first()
                             val nextPosition = dijkstra(unit.position, selected)!!.first()
-//                    println("Unit moves to: $nextPosition")
 
                             unitList.filter { nextUnit -> nextUnit.position == unit.position }.first().position =
                                     nextPosition
@@ -84,7 +78,7 @@ fun solution1() {
                         .filter { enemy -> enemy.hp == neighbouringEnemies.minBy { it.hp }!!.hp }
                         .sortedWith(compareBy({ target -> target.position.y }, { target -> target.position.x }))
                         .first()
-                    enemy.hp -= 3
+                    enemy.hp -= unit.ap
                 }
             }
             combatOver = unitList.filter { elf -> elf.type == 'E' && elf.hp > 0 }.isEmpty() ||
@@ -123,7 +117,6 @@ fun findTilesAdjacentToTargets(targets: List<Unit>): List<Position> {//get adjac
         val adjacentTilesToTarget = getNeighbours(target.position)
             .filter { battlefield[it.y][it.x] == '.' }
             .filter { it !in unitList.filter { unit -> unit.hp > 0 }.map { unit -> unit.position } }
-//        println("Found target ${target.type} at ${target.position} with free adjacent tiles: $adjacentTilesToTarget")
         tilesAdjacentToAnyTarget.addAll(adjacentTilesToTarget)
     }
     return tilesAdjacentToAnyTarget
