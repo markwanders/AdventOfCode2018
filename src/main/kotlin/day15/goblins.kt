@@ -28,43 +28,75 @@ fun solution1() {
         }
     }
 
-    (0..3).forEach {
-        unitList.sortedWith(compareBy({ unit -> unit.position.y }, {  unit -> unit.position.x }))
+    var combatOver = false
+    var rounds = 0
+    while(!combatOver) {
+        println("After $rounds rounds")
+        print()
+
+        combatOver = unitList.filter { elf -> elf.type == 'E' && elf.hp > 0 }.isEmpty() ||
+                unitList.filter { goblin -> goblin.type == 'G' && goblin.hp > 0 }.isEmpty()
+
+        if(combatOver) break
+
         unitList.forEach { unit -> // Reset distance
             unit.position.distance = Int.MAX_VALUE
             unit.position.shortestPath = LinkedList()
         }
-        print()
 
-        unitList.forEach { unit ->
+
+        unitList.sortedWith(compareBy({ unit -> unit.position.y }, {  unit -> unit.position.x })).forEach { unit ->
+            if (unit.hp > 0) {
 //            println("Finding targets for ${unit.type} at ${unit.position.x}, ${unit.position.y}")
-            val targets = unitList
-                .filter { enemy -> enemy.type != unit.type } //determine targets for each unit
-            val neighbouringTargets =
-                getNeighbours(unit.position)
-                    .filter { neighbour -> neighbour in targets.map { enemy -> enemy.position } } // Are we already next to a target?
-            if (neighbouringTargets.isEmpty()) { // Move to nearest enemy
-                val tilesAdjacentToAnyTarget = findTilesAdjacentToTargets(targets).toMutableList()
-                tilesAdjacentToAnyTarget.sortedWith(compareBy({ position -> position.y }, {  position -> position.x }))
+                val targets = unitList
+                    .filter { enemy -> enemy.type != unit.type && enemy.hp > 0 } //determine targets for each unit
+                var neighbouringTargets =
+                    getNeighbours(unit.position)
+                        .filter { neighbour -> neighbour in targets.map { enemy -> enemy.position } } // Are we already next to a target?
+                if (neighbouringTargets.isEmpty()) { // Move to nearest enemy
+                    val tilesAdjacentToAnyTarget = findTilesAdjacentToTargets(targets).toMutableList()
+                    tilesAdjacentToAnyTarget.sortedWith(
+                        compareBy(
+                            { position -> position.y },
+                            { position -> position.x })
+                    )
 //                println("All possible destinations: $tilesAdjacentToAnyTarget")
-                if(tilesAdjacentToAnyTarget.isNotEmpty()) {
-                    val routes = tilesAdjacentToAnyTarget.map { tile -> tile to dijkstra(unit.position, tile) }
-                    val shortestDistance = routes.minBy { route -> route.second!!.size }!!.second!!.size
-//                    println("Shortest distance to closest tile next to target: $shortestDistance")
-                    val selected = routes
-                        .filter { route -> route.second!!.size == shortestDistance }
-                        .map { route -> route.first }
-                        .sortedWith(compareBy({ position -> position.y }, { position -> position.x }))
-                        .first()
-                    val nextPosition = dijkstra(unit.position, selected)!!.first()
+                    if (tilesAdjacentToAnyTarget.isNotEmpty()) {
+                        val routes = tilesAdjacentToAnyTarget.map { tile -> tile to dijkstra(unit.position, tile) }.filter { it.second != null }
+                        if(routes.isNotEmpty()) {
+                            val shortestDistance = routes.minBy { route -> route.second!!.size }!!.second!!.size
+//                            println("Shortest distance to closest tile next to target: $shortestDistance")
+                            val selected = routes
+                                .filter { route -> route.second!!.size == shortestDistance }
+                                .map { route -> route.first }
+                                .sortedWith(compareBy({ position -> position.y }, { position -> position.x }))
+                                .first()
+                            val nextPosition = dijkstra(unit.position, selected)!!.first()
 //                    println("Unit moves to: $nextPosition")
 
-                    unitList.filter { nextUnit -> nextUnit.position == unit.position }.first().position = nextPosition
+                            unitList.filter { nextUnit -> nextUnit.position == unit.position }.first().position =
+                                    nextPosition
+
+                            neighbouringTargets =
+                                    getNeighbours(unit.position)
+                                        .filter { neighbour -> neighbour in targets.map { enemy -> enemy.position } }
+                        }
+                    }
+
+                }
+                if (neighbouringTargets.isNotEmpty()) { //Target in range, fight!
+                    val enemy = unitList.filter { enemy -> enemy.position in neighbouringTargets }
+                        .sortedBy { enemy -> enemy.hp }.first()
+                    enemy.hp -= 3
                 }
             }
 
         }
+        if(!combatOver) rounds ++
     }
+
+    println("Finished after $rounds rounds")
+    println("Total remaining hp: ${unitList.filter { it.hp > 0 }.sumBy { it.hp }}")
 }
 
 data class Unit(var position: Position, var type: Char) {
@@ -75,14 +107,13 @@ data class Unit(var position: Position, var type: Char) {
 fun print() { //Print battlefield
     battlefield.forEachIndexed { y, line ->
         line.forEachIndexed { x, char ->
-            if (unitList.any { unit -> unit.position.x == x && unit.position.y == y }) {
-//                print(unitList.indexOf(unitList.first { unit -> unit.position.x == x && unit.position.y == y }))
-                print(unitList.first { unit -> unit.position.x == x && unit.position.y == y }.type)
+            if (unitList.any { unit -> unit.position.x == x && unit.position.y == y && unit.hp > 0}) {
+                print(unitList.first { unit -> unit.position.x == x && unit.position.y == y && unit.hp > 0 }.type)
             } else {
                 print(char)
             }
         }
-        println()
+        println(unitList.filter { it.position.y == y }.map { it -> it.type to it.hp })
     }
 }
 
@@ -91,7 +122,7 @@ fun findTilesAdjacentToTargets(targets: List<Unit>): List<Position> {//get adjac
     targets.forEach { target ->
         val adjacentTilesToTarget = getNeighbours(target.position)
             .filter { battlefield[it.y][it.x] == '.' }
-            .filter { it !in unitList.map { unit -> unit.position } }
+            .filter { it !in unitList.filter { unit -> unit.hp > 0 }.map { unit -> unit.position } }
 //        println("Found target ${target.type} at ${target.position} with free adjacent tiles: $adjacentTilesToTarget")
         tilesAdjacentToAnyTarget.addAll(adjacentTilesToTarget)
     }
@@ -120,7 +151,7 @@ fun dijkstra(from: Position, to: Position): List<Position>? {
 
         unsettledNodes += getNeighbours(currentNode)
             .filter { battlefield[it.y][it.x] == '.' }
-            .filter { it !in unitList.map { unit -> unit.position } }
+            .filter { it !in unitList.filter { unit -> unit.hp > 0 }.map { unit -> unit.position } }
             .filter { it !in unsettledNodes }.filter { it !in settledNodes }
             .filter { it != currentNode }
 
