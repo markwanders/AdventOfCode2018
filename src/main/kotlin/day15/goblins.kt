@@ -34,16 +34,10 @@ fun solution1() {
         println("After $rounds rounds")
         print()
 
-        combatOver = unitList.filter { elf -> elf.type == 'E' && elf.hp > 0 }.isEmpty() ||
-                unitList.filter { goblin -> goblin.type == 'G' && goblin.hp > 0 }.isEmpty()
-
-        if(combatOver) break
-
         unitList.forEach { unit -> // Reset distance
             unit.position.distance = Int.MAX_VALUE
             unit.position.shortestPath = LinkedList()
         }
-
 
         unitList.sortedWith(compareBy({ unit -> unit.position.y }, {  unit -> unit.position.x })).forEach { unit ->
             if (unit.hp > 0) {
@@ -85,18 +79,24 @@ fun solution1() {
 
                 }
                 if (neighbouringTargets.isNotEmpty()) { //Target in range, fight!
-                    val enemy = unitList.filter { enemy -> enemy.position in neighbouringTargets }
-                        .sortedBy { enemy -> enemy.hp }.first()
+                    val neighbouringEnemies = unitList.filter { enemy -> enemy.position in neighbouringTargets }.filter { enemy -> enemy.hp > 0 }
+                    val enemy = neighbouringEnemies
+                        .filter { enemy -> enemy.hp == neighbouringEnemies.minBy { it.hp }!!.hp }
+                        .sortedWith(compareBy({ target -> target.position.y }, { target -> target.position.x }))
+                        .first()
                     enemy.hp -= 3
                 }
             }
-
+            combatOver = unitList.filter { elf -> elf.type == 'E' && elf.hp > 0 }.isEmpty() ||
+                    unitList.filter { goblin -> goblin.type == 'G' && goblin.hp > 0 }.isEmpty()
         }
         if(!combatOver) rounds ++
     }
 
     println("Finished after $rounds rounds")
     println("Total remaining hp: ${unitList.filter { it.hp > 0 }.sumBy { it.hp }}")
+    println("Solution: ${rounds * unitList.filter { it.hp > 0 }.sumBy { it.hp }}")
+
 }
 
 data class Unit(var position: Position, var type: Char) {
