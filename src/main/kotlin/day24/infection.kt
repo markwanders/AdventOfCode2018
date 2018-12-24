@@ -21,9 +21,19 @@ fun readFile(file: String) : List<Group> {
                 val group = Group(if(addToInfection) "infection" else "immune", match[0], match[1], match[2], damageType, match[3])
                 if("(?<=immune to )(.*)(?=;)".toRegex().containsMatchIn(it)) {
                     group.immunities.addAll("(?<=immune to )(.*)(?=;)".toRegex().find(it)!!.groups[0]!!.value.split(", "))
+                } else {
+                    if("(?<=immune to )(.*)(?=\\))".toRegex().containsMatchIn(it)) {
+                        group.immunities.addAll("(?<=immune to )(.*)(?=\\))".toRegex().find(it)!!.groups[0]!!.value.split(", "))
+                    }
                 }
-                if("(?<=weak to )(.*)(?=\\))".toRegex().containsMatchIn(it)) {
-                    group.weaknesses.addAll("(?<=weak to )(.*)(?=\\))".toRegex().find(it)!!.groups[0]!!.value.split(", "))
+                if("(?<=weak to )(.*)(?=;)".toRegex().containsMatchIn(it)) {
+                    group.weaknesses.addAll("(?<=weak to )(.*)(?=;)".toRegex().find(it)!!.groups[0]!!.value.split(", "))
+                } else {
+                    if ("(?<=weak to )(.*)(?=\\))".toRegex().containsMatchIn(it)) {
+                        group.weaknesses.addAll(
+                            "(?<=weak to )(.*)(?=\\))".toRegex().find(it)!!.groups[0]!!.value.split(", ")
+                        )
+                    }
                 }
                 groups.add(group)
             }
@@ -39,44 +49,38 @@ data class Group(val type: String, var units: Int, var hitPoints: Int, val attac
 
 fun solution1(groups: List<Group>) {
     while(groups.any { it.type == "infection" && it.units > 0 } && groups.any {  it.type == "immune" && it.units > 0 }) {
-//    repeat(1) {
         // do targeting
-        val targetingOrder = groups
+        val targets = hashMapOf<Int, Int>()
+
+        groups
             .filter { group -> group.units > 0 }
             .sortedWith(compareByDescending<Group> {group -> group.attackDamage*group.units }.thenByDescending { group -> group.initiative })
-
-        val targets = hashMapOf<Int, Int>()
-        targetingOrder.forEach { attacker ->
-            val possibleTargets = groups.filter { target -> target.type != attacker.type && target.initiative !in targets.values && target.units > 0 }
-//            println(targets)
-            if(possibleTargets.isNotEmpty()) {
-                val damages = possibleTargets.map { target -> target to calculateDamage(attacker, target) }.sortedWith(
-                    compareByDescending<Pair<Group, Int>> { target -> target.second }
-                        .thenByDescending { target -> target.first.attackDamage * target.first.units }
-                        .thenByDescending { target -> target.first.initiative })
-                val target = damages.first()
-                if(target.second > 0) {
-                    targets[attacker.initiative] = target.first.initiative
+            .forEach { attacker ->
+                val possibleTargets = groups.filter { target -> target.type != attacker.type && target.initiative !in targets.values && target.units > 0 }
+                if(possibleTargets.isNotEmpty()) {
+                    val target = possibleTargets.map { target -> target to calculateDamage(attacker, target) }.sortedWith(
+                        compareByDescending<Pair<Group, Int>> { target -> target.second }
+                            .thenByDescending { target -> target.first.attackDamage * target.first.units }
+                            .thenByDescending { target -> target.first.initiative })
+                        .first()
+                    if(target.second > 0) {
+                        targets[attacker.initiative] = target.first.initiative
+                    }
                 }
             }
-        }
 
         // do attacking
-        val attackingOrder = groups
+        groups
             .filter { attacker -> attacker.units > 0 }
             .sortedByDescending { group -> group.initiative }
-
-        attackingOrder.forEach { attacker ->
-            val defenderList = groups.filter { defender -> defender.initiative == targets[attacker.initiative]}
-            if (defenderList.isNotEmpty()) {
-                val defender = defenderList.first()
-                val casualties = truncate(calculateDamage(attacker, defender).toDouble()/defender.hitPoints.toDouble()).toInt()
-//                println("$attacker attacks $defender for $casualties casualties")
-                defender.units -= casualties
+            .forEach { attacker ->
+                val defenderList = groups.filter { defender -> defender.initiative == targets[attacker.initiative]}
+                if (defenderList.isNotEmpty()) {
+                    val defender = defenderList.first()
+                    val casualties = truncate(calculateDamage(attacker, defender).toDouble()/defender.hitPoints.toDouble()).toInt()
+                    defender.units -= casualties
+                }
             }
-        }
-        println("Remaining infection: ${groups.filter { it.type == "infection" && it.units > 0}.count()}")
-        println("Remaining immune: ${groups.filter { it.type == "immune" && it.units > 0}.count()}")
     }
     val winner =  groups.first { it.units >0 }.type
     val solution = groups.filter { it.units >0 }.sumBy { it.units }
