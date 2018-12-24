@@ -5,7 +5,8 @@ import kotlin.math.truncate
 
 fun main(args: Array<String>) {
     val input = readFile("src/main/resources/day24.txt")
-    solution1(input)
+//    solution1(input)
+    solution2()
 }
 
 fun readFile(file: String) : List<Group> {
@@ -42,7 +43,7 @@ fun readFile(file: String) : List<Group> {
     return groups
 }
 
-data class Group(val type: String, var units: Int, var hitPoints: Int, val attackDamage: Int, val attackType: String, val initiative: Int) {
+data class Group(val type: String, var units: Int, var hitPoints: Int, var attackDamage: Int, val attackType: String, val initiative: Int) {
     val weaknesses = mutableListOf<String>()
     val immunities = mutableListOf<String>()
 }
@@ -85,6 +86,83 @@ fun solution1(groups: List<Group>) {
     val winner =  groups.first { it.units >0 }.type
     val solution = groups.filter { it.units >0 }.sumBy { it.units }
     println("$winner has $solution units remaining")
+}
+
+fun solution2() {
+    var immuneWins = false
+    var boost = 0
+    while(!immuneWins) {
+        val groups = readFile("src/main/resources/day24.txt")
+        groups.forEach {
+            if(it.type == "immune") {
+                it.attackDamage += boost
+            }
+        }
+        var totalRemainingHitPoints = 0
+        groups.forEach {
+            totalRemainingHitPoints += it.units*it.hitPoints
+        }
+
+        var tie = false
+        while (groups.any { it.type == "infection" && it.units > 0 } && groups.any { it.type == "immune" && it.units > 0 } && !tie) {
+            // do targeting
+            val targets = hashMapOf<Int, Int>()
+
+            groups
+                .filter { group -> group.units > 0 }
+                .sortedWith(compareByDescending<Group> { group -> group.attackDamage * group.units }.thenByDescending { group -> group.initiative })
+                .forEach { attacker ->
+                    val possibleTargets =
+                        groups.filter { target -> target.type != attacker.type && target.initiative !in targets.values && target.units > 0 }
+                    if (possibleTargets.isNotEmpty()) {
+                        val target =
+                            possibleTargets.map { target -> target to calculateDamage(attacker, target) }.sortedWith(
+                                compareByDescending<Pair<Group, Int>> { target -> target.second }
+                                    .thenByDescending { target -> target.first.attackDamage * target.first.units }
+                                    .thenByDescending { target -> target.first.initiative })
+                                .first()
+                        if (target.second > 0) {
+                            targets[attacker.initiative] = target.first.initiative
+                        }
+                    }
+                }
+
+            // do attacking
+            groups
+                .filter { attacker -> attacker.units > 0 }
+                .sortedByDescending { group -> group.initiative }
+                .forEach { attacker ->
+                    val defenderList = groups.filter { defender -> defender.initiative == targets[attacker.initiative] }
+                    if (defenderList.isNotEmpty()) {
+                        val defender = defenderList.first()
+                        val casualties = truncate(
+                            calculateDamage(
+                                attacker,
+                                defender
+                            ).toDouble() / defender.hitPoints.toDouble()
+                        ).toInt()
+                        defender.units -= casualties
+                    }
+                }
+
+            var newRemainingHitPoints = 0
+            groups.forEach {
+                newRemainingHitPoints += it.units*it.hitPoints
+            }
+            if(newRemainingHitPoints == totalRemainingHitPoints) {
+                tie = true // a tie, so stop simulation
+            } else {
+                totalRemainingHitPoints = newRemainingHitPoints
+            }
+        }
+        if(!tie) {
+            val winner = groups.first { it.units > 0 }.type
+            immuneWins = winner == "immune"
+            val solution = groups.filter { it.units > 0 }.sumBy { it.units }
+            println("$winner has $solution units remaining after boost $boost")
+        }
+        boost++
+    }
 }
 
 fun calculateDamage(attacker: Group, defender: Group) : Int {
