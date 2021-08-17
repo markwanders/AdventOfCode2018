@@ -42,17 +42,17 @@ fun solution1and2(input: ArrayList<ArrayList<Char>>) {
                 if (y > 0) surrounding.add(yard[y - 1][x])
                 if (y < line.size - 1) surrounding.add(yard[y + 1][x])
                 if (char == '.') {
-                    if (surrounding.count { it -> it == '|' } >= 3) {
+                    if (surrounding.count { it == '|' } >= 3) {
                         newYard[y][x] = '|'
                     }
                 }
                 if (char == '|') {
-                    if (surrounding.count { it -> it == '#' } >= 3) {
+                    if (surrounding.count { it == '#' } >= 3) {
                         newYard[y][x] = '#'
                     }
                 }
                 if (char == '#') {
-                    if (!(surrounding.count { it -> it == '#' } >= 1 && surrounding.count { it -> it == '|' } >= 1)) {
+                    if (!(surrounding.any { it == '#' } && surrounding.any { it == '|' })) {
                         newYard[y][x] = '.'
                     }
                 }

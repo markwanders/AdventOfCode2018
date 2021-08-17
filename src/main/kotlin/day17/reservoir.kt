@@ -17,15 +17,13 @@ fun readFile(fileName: String): Array<Array<Char>> {
     val sand = mutableListOf<Pair<Int, Int>>()
 
     File(fileName).forEachLine {
-        val xRange: List<Int>
-        val yRange: List<Int>
-        xRange = if(xRangeRegex.containsMatchIn(it)) {
-            xRangeRegex.findAll(it).map { it.destructured.toList().map { it->it.toInt() } }.first().toMutableList()
+        val xRange: List<Int> = if(xRangeRegex.containsMatchIn(it)) {
+            xRangeRegex.findAll(it).map { it.destructured.toList().map { it.toInt() } }.first().toMutableList()
         } else {
             mutableListOf(xRegex.findAll(it).map { it.value.toInt() }.first())
         }
-        yRange = if(yRangeRegex.containsMatchIn(it)) {
-            yRangeRegex.findAll(it).map { it.destructured.toList().map { it->it.toInt() } }.first().toMutableList()
+        val yRange: List<Int> = if(yRangeRegex.containsMatchIn(it)) {
+            yRangeRegex.findAll(it).map { it.destructured.toList().map { it.toInt() } }.first().toMutableList()
         } else {
             mutableListOf(yRegex.findAll(it).map { it.value.toInt() }.first())
         }

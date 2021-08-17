@@ -20,9 +20,9 @@ fun readFileLineByLineUsingForEachLine(fileName: String): Array<String> {
 
 fun solution1(sleepyTime: HashMap<Int, IntArray>) {
     val sleepiestGuard = sleepyTime.maxBy { it.value.sum() }?.key
-    val sleepiestMinute = sleepyTime.get(sleepiestGuard)!!.indexOf(sleepyTime.get(sleepiestGuard)?.max()!!)
+    val sleepiestMinute = sleepyTime[sleepiestGuard]!!.indexOf(sleepyTime[sleepiestGuard]?.max()!!)
     val solution = sleepiestGuard!!.times(sleepiestMinute)
-    println("The sleepiest guard is #${sleepiestGuard} at ${sleepiestMinute} after midnight, resulting in the solution: ${solution}")
+    println("The sleepiest guard is #${sleepiestGuard} at $sleepiestMinute after midnight, resulting in the solution: $solution")
 }
 
 fun solution2(sleepyTime: HashMap<Int, IntArray>) {
@@ -31,8 +31,8 @@ fun solution2(sleepyTime: HashMap<Int, IntArray>) {
     )
     val sleepiestGuard = sleepiestEntry!!.key
     val sleepiestMinute = sleepiestEntry.value.indexOf(sleepiestEntry.value.max()!!)
-    val solution = sleepiestGuard.times(sleepiestMinute!!)
-    println("The sleepiest minute is ${sleepiestMinute} after midnight for guard #${sleepiestGuard}, resulting in the solution: ${solution}")
+    val solution = sleepiestGuard.times(sleepiestMinute)
+    println("The sleepiest minute is $sleepiestMinute after midnight for guard #${sleepiestGuard}, resulting in the solution: $solution")
 }
 
 fun getSleepyTimes(input: Array<String>) : HashMap<Int, IntArray> {
@@ -56,7 +56,7 @@ fun getSleepyTimes(input: Array<String>) : HashMap<Int, IntArray> {
         } else if (wakeRegex.containsMatchIn(it)) {
             val wake = wakeRegex.find(it)!!.value.toInt()
             for (minute in sleep until wake) {
-                sleepyTime.get(guardID)!![minute]++
+                sleepyTime[guardID]!![minute]++
             }
         }
     }

@@ -59,7 +59,7 @@ fun solution1(input: List<Int>) {
     }
     println("Risk rating is $riskRating")
 
-    val targetNode = Position(target.first, target.second, 0, false, true)
+    val targetNode = Position(target.first, target.second, 0, climbingGear = false, torch = true)
     val solution = dijkstra(cave, targetNode)
     println("Time it took to reach target: $solution")
 
@@ -68,7 +68,7 @@ fun solution1(input: List<Int>) {
 fun dijkstra(cave: Array<Array<Region>>, targetNode: Position) : Int {
     val queue = PriorityQueue<Position>(Comparator.comparing(Position::time))
 
-    queue.add(Position(0,0, 0,false, true))
+    queue.add(Position(0,0, 0, climbingGear = false, torch = true))
 
     val times = hashMapOf<Position, Int>()
 
@@ -89,10 +89,16 @@ fun dijkstra(cave: Array<Array<Region>>, targetNode: Position) : Int {
         val type = cave[currentNode.y][currentNode.x].type
         if(type == '.') {
             if(!currentNode.torch) {
-                queue.add(Position(currentNode.x, currentNode.y, currentNode.time + 7, false, true))
+                queue.add(Position(currentNode.x, currentNode.y, currentNode.time + 7,
+                    climbingGear = false,
+                    torch = true
+                ))
             }
             if(!currentNode.climbingGear) {
-                queue.add(Position(currentNode.x, currentNode.y, currentNode.time + 7,true, false))
+                queue.add(Position(currentNode.x, currentNode.y, currentNode.time + 7,
+                    climbingGear = true,
+                    torch = false
+                ))
             }
         }
         if(type == '=') {

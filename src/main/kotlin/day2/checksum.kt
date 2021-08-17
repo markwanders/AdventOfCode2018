@@ -3,7 +3,7 @@ package day2
 import java.io.File
 
 fun main(args: Array<String>) {
-    val values = day2.readFileLineByLineUsingForEachLine("src/main/resources/day2.txt")
+    val values = readFileLineByLineUsingForEachLine("src/main/resources/day2.txt")
     solution1(values)
     solution2(values)
 }

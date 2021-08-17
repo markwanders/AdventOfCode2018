@@ -46,7 +46,7 @@ fun value(input: IntIterator): Int {
     }
 
     return if(children > 0) {
-        valuesToUse.map { it -> childValues[it - 1]?: 0  }.sum()
+        valuesToUse.map { childValues[it - 1]?: 0  }.sum()
     } else {
         valuesToUse.sum()
     }

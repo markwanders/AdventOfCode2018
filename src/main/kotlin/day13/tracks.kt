@@ -144,7 +144,7 @@ fun solution2(input: ArrayList<CharArray>) {
                     }
                 }
             }
-            val remainingCars = cars.filter { it -> it.second != 0 to 0 }
+            val remainingCars = cars.filter { it.second != 0 to 0 }
             if (remainingCars.size == 1) {
                 crashed = true
                 println(remainingCars)

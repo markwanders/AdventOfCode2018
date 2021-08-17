@@ -41,8 +41,8 @@ fun solution2() {
     }
 
     val maximaPerCoordinate = mutableMapOf<Pair<Int, Int>, Pair<Int, Int>>()
-    for (y in 0 until grid.size) {
-        for (x in 0 until grid.size) {
+    for (y in grid.indices) {
+        for (x in grid.indices) {
 
             val totalsBySizeForThisCoordinate = mutableMapOf<Int, Int>()
             totalsBySizeForThisCoordinate[0] = 0

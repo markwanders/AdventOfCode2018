@@ -167,9 +167,9 @@ fun solution2() {
 
 fun calculateDamage(attacker: Group, defender: Group) : Int {
     val baseDamage = attacker.units * attacker.attackDamage
-    val modifier = when {
-        attacker.attackType in defender.immunities -> 0
-        attacker.attackType in defender.weaknesses -> 2
+    val modifier = when (attacker.attackType) {
+        in defender.immunities -> 0
+        in defender.weaknesses -> 2
         else -> 1
     }
     return baseDamage * modifier

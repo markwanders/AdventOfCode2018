@@ -9,7 +9,7 @@ fun main(args : Array<String>) {
 }
 
 fun readFileLineByLineUsingForEachLine(fileName: String) : IntArray {
-    var values: ArrayList<Int> = ArrayList()
+    val values: ArrayList<Int> = ArrayList()
     File(fileName).forEachLine {
        values.add(it.toInt())
     }
@@ -22,7 +22,7 @@ fun solution1(values : IntArray) {
 
 fun solution2(values: IntArray) {
     var currentValue = 0
-    var historicValues: ArrayList<Int> = ArrayList(currentValue)
+    val historicValues: ArrayList<Int> = ArrayList(currentValue)
     var repeat = false
     while (!repeat) {
         values.forEach {

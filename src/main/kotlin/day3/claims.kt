@@ -19,7 +19,7 @@ fun readFileLineByLineUsingForEachLine(fileName: String): Array<String> {
 
 fun solution1(input: Array<String>) {
     val claims = input.map { s -> Claim(s) }
-    val fabric = Array(1000, { IntArray(1000) })
+    val fabric = Array(1000) { IntArray(1000) }
     claims.forEach {
         for (x in it.startX until it.startX + it.x) {
             for (y in it.startY until it.startY + it.y) {
@@ -33,7 +33,7 @@ fun solution1(input: Array<String>) {
 
 fun solution2(input: Array<String>) {
     val claims = input.map { s -> Claim(s) }
-    val fabric = Array(1000, { IntArray(1000) })
+    val fabric = Array(1000) { IntArray(1000) }
     claims.forEach {
         for (x in it.startX until it.startX + it.x) {
             for (y in it.startY until it.startY + it.y) {
@@ -47,14 +47,14 @@ fun solution2(input: Array<String>) {
     }
 
    val claim = claims.filter { claim ->
-        fabric.sliceArray(claim.startX..(claim.startX + claim.x - 1)).all {
-            it.slice(claim.startY..(claim.startY + claim.y - 1)).all {
+        fabric.sliceArray(claim.startX until claim.startX + claim.x).all {
+            it.slice(claim.startY until claim.startY + claim.y).all {
                 it == 1
             }
         }
     }.map { it.id }
 
-    println("Cells claimed equal to cells required for id: ${claim}")
+    println("Cells claimed equal to cells required for id: $claim")
 
 }
 

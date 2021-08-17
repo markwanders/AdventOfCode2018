@@ -4,6 +4,7 @@ import java.io.File
 import java.util.ArrayList
 import kotlin.collections.HashMap
 import kotlin.collections.set
+import kotlin.math.sqrt
 
 var ip = -1
 val operations = HashMap<String, (List<Int>, List<Int>) -> List<Int>>()
@@ -154,7 +155,7 @@ fun solution2() {
         input[ip]++
     }
 
-    val max = Math.sqrt(factor.toDouble()).toInt()
+    val max = sqrt(factor.toDouble()).toInt()
     var sum = 1
     for (i in 2..max) {
         if (factor % i == 0) {

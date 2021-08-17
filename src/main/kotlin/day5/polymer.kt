@@ -22,7 +22,7 @@ fun solution2(polymer: String){
         .map { c -> c.toLowerCase() }
         .distinct()
         .sorted()
-        .map { it -> it to react(String(polymerArray.filterNot { c -> c.toLowerCase() == it}.toCharArray()))}
+        .map { it to react(String(polymerArray.filterNot { c -> c.toLowerCase() == it}.toCharArray()))}
         .minBy { it.second.length }
     println("Removing letter ${minEntry!!.first} results in the shortest reacted polymer with length ${minEntry.second.length}.")
 }
